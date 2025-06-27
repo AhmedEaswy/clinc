@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QTabWidget,
-                             QLabel, QPushButton, QMessageBox)
+                             QLabel, QPushButton, QMessageBox, QHBoxLayout)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from database import Database
@@ -12,6 +12,7 @@ from cash_tab import CashTab
 from trash_tab import TrashTab
 from styles import MAIN_STYLE, COLORS
 from dashboard_tab import DashboardTab
+from custom_widgets import CustomPushButton
 
 class MainWindow(QMainWindow):
     def __init__(self, user):
@@ -32,11 +33,16 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        # Header with user info
-        header_layout = QVBoxLayout()
+        # Header with user info and logout button in a row
+        header_layout = QHBoxLayout()
         user_info = QLabel(f'مرحباً {self.user[1]} ({self.user[3]})')
         user_info.setObjectName('header')
         header_layout.addWidget(user_info)
+        header_layout.addStretch()
+        self.logout_button = CustomPushButton('تسجيل الخروج')
+        self.logout_button.setStyleSheet('background: #f44336; color: #fff; border-radius: 8px; font-size: 16px; font-weight: bold; padding: 8px 24px;')
+        self.logout_button.clicked.connect(self.handle_logout)
+        header_layout.addWidget(self.logout_button)
         layout.addLayout(header_layout)
 
         # Create tab widget
@@ -80,6 +86,17 @@ class MainWindow(QMainWindow):
     def call_next_patient(self):
         # TODO: Implement logic to mark next patient as in progress
         pass
+
+    def handle_logout(self):
+        reply = QMessageBox.question(self, 'تأكيد تسجيل الخروج',
+                                   'هل أنت متأكد من رغبتك في تسجيل الخروج؟',
+                                   QMessageBox.Yes | QMessageBox.No,
+                                   QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            from login import LoginWindow
+            self.login_window = LoginWindow()
+            self.login_window.show()
+            self.close()
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'تأكيد الخروج',

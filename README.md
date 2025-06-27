@@ -15,6 +15,18 @@ A desktop application for managing clinic operations, built with Python and PySi
 - **Trash**: Soft-delete and restore records for patients, appointments, checkups, invoices, and expenses.
 - **Modern UI**: Clean, right-to-left interface with custom widgets and styles.
 
+## UI/UX
+
+The application features a modern, user-friendly interface designed for efficiency and clarity. The UI is fully right-to-left (RTL) to support Arabic users, with a clean layout, intuitive navigation, and consistent color palette. Custom widgets and styles ensure a professional look and feel, while confirmation dialogs and clear feedback help prevent mistakes and guide users through their tasks.
+
+## Frontend
+
+The frontend is built with Python and PySide6, leveraging Qt's powerful widget system. All user interactions, forms, and data tables are implemented as custom or standard Qt widgets. The main window organizes the app into tabs for Dashboard, Patients, Appointments, Checkups, Invoices, Expenses, Cash, and Trash. Each tab provides specialized tools for managing clinic operations, with responsive layouts and interactive controls. The login window manages authentication and role selection.
+
+## Backend
+
+The backend logic is handled entirely in Python. Data persistence is managed with SQLite (clinic.db), accessed through a dedicated Database class. All CRUD operations for users, patients, appointments, checkups, invoices, expenses, and cash transactions are encapsulated in backend methods. The backend ensures data integrity, supports soft-deletion (trash), and provides role-based access control. Initialization scripts create default users and tables if they do not exist, making setup seamless.
+
 ## Installation
 
 1. Clone the repository and navigate to the project directory.
