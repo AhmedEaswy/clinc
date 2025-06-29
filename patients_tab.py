@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
                              QPushButton, QTableWidget, QTableWidgetItem, QMessageBox,
-                             QDialog, QFormLayout, QSpinBox)
+                             QDialog, QFormLayout, QSpinBox, QHeaderView)
 from PySide6.QtCore import Qt
 from database import Database
+from functools import partial
 
 class AddPatientDialog(QDialog):
     def __init__(self, parent=None):
@@ -61,10 +62,15 @@ class PatientsTab(QWidget):
 
         # Patients table
         self.table = QTableWidget()
-        self.table.setColumnCount(6)
-        self.table.setHorizontalHeaderLabels(['الرقم', 'الاسم', 'العمر', 'رقم الهاتف', 'العنوان', 'الرصيد'])
+        self.table.setColumnCount(7)
+        self.table.setHorizontalHeaderLabels(['الرقم', 'الاسم', 'العمر', 'رقم الهاتف', 'العنوان', 'الرصيد', 'العمليات'])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.verticalHeader().setDefaultSectionSize(60)  # Set minimum row height
+        self.table.horizontalHeader().setMinimumSectionSize(120)  # Set minimum column width
+        self.table.horizontalHeader().setStretchLastSection(True)
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         layout.addWidget(self.table)
 
         # Action buttons
@@ -90,6 +96,20 @@ class PatientsTab(QWidget):
             self.table.setItem(row, 3, QTableWidgetItem(patient[3]))
             self.table.setItem(row, 4, QTableWidgetItem(patient[4]))
             self.table.setItem(row, 5, QTableWidgetItem(str(patient[5])))
+
+            # Operations column
+            ops_widget = QWidget()
+            ops_layout = QHBoxLayout(ops_widget)
+            ops_layout.setContentsMargins(0, 0, 0, 0)
+            ops_layout.setSpacing(5)
+            btn_checkups = QPushButton('عرض السجل')
+            btn_appointments = QPushButton('عرض المواعيد')
+            btn_checkups.clicked.connect(partial(self.show_patient_checkups, patient[0], patient[1]))
+            btn_appointments.clicked.connect(partial(self.show_patient_appointments, patient[0], patient[1]))
+            ops_layout.addWidget(btn_checkups)
+            ops_layout.addWidget(btn_appointments)
+            ops_layout.addStretch()
+            self.table.setCellWidget(row, 6, ops_widget)
 
     def search_patients(self):
         search_text = self.search_input.text().lower()
@@ -164,4 +184,56 @@ class PatientsTab(QWidget):
             row = selected_rows[0].row()
             patient_id = int(self.table.item(row, 0).text())
             self.db.delete_patient(patient_id)
-            self.load_patients() 
+            self.load_patients()
+
+    def show_patient_checkups(self, patient_id, patient_name):
+        checkups = self.db.execute_query('''
+            SELECT checkup_date, diagnosis, treatment, cost, is_paid
+            FROM checkups
+            WHERE patient_id = ? AND is_deleted = 0
+            ORDER BY checkup_date DESC
+        ''', (patient_id,))
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f'سجل الكشوفات للمريض: {patient_name}')
+        dialog.setMinimumWidth(600)
+        layout = QVBoxLayout(dialog)
+        table = QTableWidget()
+        table.setColumnCount(5)
+        table.setHorizontalHeaderLabels(['التاريخ', 'التشخيص', 'العلاج', 'التكلفة', 'حالة الدفع'])
+        table.setRowCount(len(checkups))
+        for row, c in enumerate(checkups):
+            table.setItem(row, 0, QTableWidgetItem(str(c[0])))
+            table.setItem(row, 1, QTableWidgetItem(c[1]))
+            table.setItem(row, 2, QTableWidgetItem(c[2]))
+            table.setItem(row, 3, QTableWidgetItem(str(c[3])))
+            table.setItem(row, 4, QTableWidgetItem('مدفوع' if c[4] else 'غير مدفوع'))
+        layout.addWidget(table)
+        close_btn = QPushButton('إغلاق')
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn)
+        dialog.exec_()
+
+    def show_patient_appointments(self, patient_id, patient_name):
+        appointments = self.db.execute_query('''
+            SELECT appointment_date, status, notes
+            FROM appointments
+            WHERE patient_id = ? AND is_deleted = 0
+            ORDER BY appointment_date DESC
+        ''', (patient_id,))
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f'مواعيد المريض: {patient_name}')
+        dialog.setMinimumWidth(600)
+        layout = QVBoxLayout(dialog)
+        table = QTableWidget()
+        table.setColumnCount(3)
+        table.setHorizontalHeaderLabels(['التاريخ والوقت', 'الحالة', 'ملاحظات'])
+        table.setRowCount(len(appointments))
+        for row, a in enumerate(appointments):
+            table.setItem(row, 0, QTableWidgetItem(str(a[0])))
+            table.setItem(row, 1, QTableWidgetItem(a[1]))
+            table.setItem(row, 2, QTableWidgetItem(a[2]))
+        layout.addWidget(table)
+        close_btn = QPushButton('إغلاق')
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn)
+        dialog.exec_() 

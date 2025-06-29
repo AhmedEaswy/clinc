@@ -36,6 +36,13 @@ class AddInvoiceDialog(QDialog):
         self.payment_status.addItems(['مدفوع', 'غير مدفوع'])
         layout.addRow('حالة الدفع:', self.payment_status)
 
+        # Date
+        self.date_input = QDateTimeEdit()
+        self.date_input.setDateTime(QDateTime.currentDateTime())
+        self.date_input.setCalendarPopup(True)
+        self.date_input.setStyleSheet("background-color: white;")
+        layout.addRow('التاريخ:', self.date_input)
+
         # Buttons
         buttons_layout = QHBoxLayout()
         save_button = QPushButton('حفظ')
@@ -82,6 +89,11 @@ class InvoicesTab(QWidget):
         self.table.setHorizontalHeaderLabels(['الرقم', 'المريض', 'المبلغ', 'الوصف', 'حالة الدفع', 'تاريخ الإنشاء'])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.verticalHeader().setDefaultSectionSize(60)  # Set minimum row height
+        self.table.horizontalHeader().setMinimumSectionSize(120)  # Set minimum column width
+        self.table.horizontalHeader().setStretchLastSection(True)
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         layout.addWidget(self.table)
 
         # Action buttons
@@ -105,7 +117,7 @@ class InvoicesTab(QWidget):
         
         for row, invoice in enumerate(invoices):
             self.table.setItem(row, 0, QTableWidgetItem(str(invoice[0])))
-            self.table.setItem(row, 1, QTableWidgetItem(invoice[5]))  # patient_name
+            self.table.setItem(row, 1, QTableWidgetItem(invoice[8]))  # patient_name
             self.table.setItem(row, 2, QTableWidgetItem(str(invoice[2])))
             self.table.setItem(row, 3, QTableWidgetItem(invoice[3]))
             self.table.setItem(row, 4, QTableWidgetItem('مدفوع' if invoice[4] else 'غير مدفوع'))

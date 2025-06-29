@@ -29,6 +29,7 @@ class AddExpenseDialog(QDialog):
         self.date_input = QDateTimeEdit()
         self.date_input.setDateTime(QDateTime.currentDateTime())
         self.date_input.setCalendarPopup(True)
+        self.date_input.setStyleSheet("background-color: white;")
         layout.addRow('التاريخ:', self.date_input)
 
         # Buttons
@@ -72,6 +73,11 @@ class ExpensesTab(QWidget):
         self.table.setHorizontalHeaderLabels(['الرقم', 'المبلغ', 'الوصف', 'التاريخ', 'تاريخ الإنشاء'])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.verticalHeader().setDefaultSectionSize(60)  # Set minimum row height
+        self.table.horizontalHeader().setMinimumSectionSize(120)  # Set minimum column width
+        self.table.horizontalHeader().setStretchLastSection(True)
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         layout.addWidget(self.table)
 
         # Action buttons

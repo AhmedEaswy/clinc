@@ -32,9 +32,11 @@ class CashTab(QWidget):
         self.start_date = QDateTimeEdit()
         self.start_date.setDateTime(QDateTime.currentDateTime().addDays(-30))
         self.start_date.setCalendarPopup(True)
+        self.start_date.setStyleSheet("background-color: white;")
         self.end_date = QDateTimeEdit()
         self.end_date.setDateTime(QDateTime.currentDateTime())
         self.end_date.setCalendarPopup(True)
+        self.end_date.setStyleSheet("background-color: white;")
         
         filters_layout.addWidget(QLabel('من:'))
         filters_layout.addWidget(self.start_date)
@@ -65,6 +67,11 @@ class CashTab(QWidget):
         self.table.setHorizontalHeaderLabels(['الرقم', 'النوع', 'المبلغ', 'الوصف', 'التاريخ', 'المرجع'])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.verticalHeader().setDefaultSectionSize(60)  # Set minimum row height
+        self.table.horizontalHeader().setMinimumSectionSize(120)  # Set minimum column width
+        self.table.horizontalHeader().setStretchLastSection(True)
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         layout.addWidget(self.table)
 
     def load_transactions(self):
@@ -101,6 +108,13 @@ class CashTab(QWidget):
             self.table.setItem(row, 3, QTableWidgetItem(transaction[3]))
             self.table.setItem(row, 4, QTableWidgetItem(str(transaction[6])))
             self.table.setItem(row, 5, QTableWidgetItem(f"{transaction[5]} ({transaction[4]})"))
+
+        # Dynamically update balance based on filtered transactions
+        balance = sum(t[2] if t[1] == 'income' else -t[2] for t in transactions)
+        self.balance_value.setText(f"{balance} جنيه")
+        self.balance_value.setStyleSheet(
+            f'font-size: 18px; font-weight: bold; color: {"green" if balance >= 0 else "red"};'
+        )
 
     def print_report(self):
         start_date = self.start_date.dateTime().toString('yyyy-MM-dd HH:mm:ss')

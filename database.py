@@ -329,14 +329,14 @@ class Database:
             self.execute_query(query)
 
     def get_checkup_patient_id(self, checkup_id):
-        query = "SELECT patient_id FROM checkups WHERE id = ?"
+        query = "SELECT patient_id, (SELECT name FROM patients WHERE id = checkups.patient_id) as patient_name FROM checkups WHERE id = ?"
         result = self.execute_query(query, (checkup_id,))
-        return result[0][0] if result else None
+        return (result[0][0], result[0][1]) if result else (None, None)
 
     def get_invoice_patient_id(self, invoice_id):
-        query = "SELECT patient_id FROM invoices WHERE id = ?"
+        query = "SELECT patient_id, (SELECT name FROM patients WHERE id = invoices.patient_id) as patient_name FROM invoices WHERE id = ?"
         result = self.execute_query(query, (invoice_id,))
-        return result[0][0] if result else None
+        return (result[0][0], result[0][1]) if result else (None, None)
 
     def mark_checkup_as_paid(self, patient_id, amount):
         self.add_cash_transaction('income', amount, 'دفعة كشف طبي', patient_id, 'checkup')
@@ -456,4 +456,11 @@ class Database:
                 "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
                 default_users
             )
-            self.conn.commit() 
+            self.conn.commit()
+
+    def add_invoice(self, patient_id, amount, description):
+        query = '''
+        INSERT INTO invoices (patient_id, amount, description)
+        VALUES (?, ?, ?)
+        '''
+        return self.execute_query(query, (patient_id, amount, description)) 

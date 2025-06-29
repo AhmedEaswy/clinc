@@ -61,6 +61,11 @@ class TrashTab(QWidget):
         table.setHorizontalHeaderLabels(headers)
         table.setSelectionBehavior(QTableWidget.SelectRows)
         table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.verticalHeader().setDefaultSectionSize(60)  # Set minimum row height
+        table.horizontalHeader().setMinimumSectionSize(120)  # Set minimum column width
+        table.horizontalHeader().setStretchLastSection(True)
+        # table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
     def load_trash(self):
         # Load deleted patients

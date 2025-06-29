@@ -25,6 +25,7 @@ class AddCheckupDialog(QDialog):
         self.datetime_input = QDateTimeEdit()
         self.datetime_input.setDateTime(QDateTime.currentDateTime())
         self.datetime_input.setCalendarPopup(True)
+        self.datetime_input.setStyleSheet("background-color: white;")
         layout.addRow('التاريخ والوقت:', self.datetime_input)
 
         # Diagnosis
@@ -88,10 +89,15 @@ class CheckupsTab(QWidget):
 
         # Checkups table
         self.table = QTableWidget()
-        self.table.setColumnCount(8)
-        self.table.setHorizontalHeaderLabels(['الرقم', 'المريض', 'الطبيب', 'التاريخ', 'التشخيص', 'العلاج', 'التكلفة', 'حالة الدفع'])
+        self.table.setColumnCount(7)
+        self.table.setHorizontalHeaderLabels(['الرقم', 'المريض', 'التاريخ', 'التشخيص', 'العلاج', 'التكلفة', 'حالة الدفع'])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.verticalHeader().setDefaultSectionSize(60)  # Set minimum row height
+        self.table.horizontalHeader().setMinimumSectionSize(120)  # Set minimum column width
+        self.table.horizontalHeader().setStretchLastSection(True)
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         layout.addWidget(self.table)
 
         # Action buttons
@@ -115,13 +121,12 @@ class CheckupsTab(QWidget):
         
         for row, checkup in enumerate(checkups):
             self.table.setItem(row, 0, QTableWidgetItem(str(checkup[0])))
-            self.table.setItem(row, 1, QTableWidgetItem(checkup[8]))  # patient_name
-            self.table.setItem(row, 2, QTableWidgetItem(checkup[9]))  # doctor_name
-            self.table.setItem(row, 3, QTableWidgetItem(str(checkup[3])))
-            self.table.setItem(row, 4, QTableWidgetItem(checkup[4]))
-            self.table.setItem(row, 5, QTableWidgetItem(checkup[5]))
-            self.table.setItem(row, 6, QTableWidgetItem(str(checkup[6])))
-            self.table.setItem(row, 7, QTableWidgetItem('مدفوع' if checkup[7] else 'غير مدفوع'))
+            self.table.setItem(row, 1, QTableWidgetItem(checkup[11]))
+            self.table.setItem(row, 2, QTableWidgetItem(str(checkup[3])))
+            self.table.setItem(row, 3, QTableWidgetItem(checkup[4]))
+            self.table.setItem(row, 4, QTableWidgetItem(checkup[5]))
+            self.table.setItem(row, 5, QTableWidgetItem(str(checkup[6])))
+            self.table.setItem(row, 6, QTableWidgetItem('مدفوع' if checkup[7] else 'غير مدفوع'))
 
     def search_checkups(self):
         search_text = self.search_input.text().lower()

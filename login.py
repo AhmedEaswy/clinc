@@ -26,7 +26,6 @@ class LoginWindow(QMainWindow):
                 background: #fff;
                 border: 2px solid {COLORS['primary']};
                 border-radius: 16px;
-                box-shadow: 0 4px 24px rgba(30,136,229,0.08);
             }}
         """)
         card.setFixedWidth(340)
